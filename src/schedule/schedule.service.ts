@@ -24,11 +24,10 @@ export class ScheduleService {
   // @Cron(CronExpression.EVERY_10_SECONDS)
   async randomuser() {
     try {
-      let userArr = [];
       const user = await this.userService.findUserAll();
       const createdate = await this.calendarSerice.createdate();
       const calendar = await this.calendarSerice.findAll();
-      const sc = await this.findAll();
+
       const u = Math.ceil(user.length / 5);
       const startDate = dayjs()
         .startOf('week')
@@ -53,7 +52,7 @@ export class ScheduleService {
       if (calendar?.length > 0) {
         for (const c of calendar) {
           if (!wk) {
-            for (let i = 0; i < u; i++) {
+            for (let i = 0; i < 2; i++) {
               // console.log(userArr);
               const randomIndex = Math.floor(Math.random() * user.length);
               const randomuser = user.splice(randomIndex, 1)[0]; //0 for use index splice
