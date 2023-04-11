@@ -10,6 +10,7 @@ import { NotiLineModule } from './noti-line/noti-line.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { Schedule } from './schedule/entities/schedule.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { NotiemailModule } from './notiemail/notiemail.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,6 +37,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     CalendarModule,
     NotiLineModule,
     ScheduleModule,
+    NotiemailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
