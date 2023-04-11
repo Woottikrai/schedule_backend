@@ -9,21 +9,30 @@ import { Calendar } from './calendar/entities/calendar.entity';
 import { NotiLineModule } from './noti-line/noti-line.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { Schedule } from './schedule/entities/schedule.entity';
-import { Notiemail } from './notiemail/entities/notiemail.entity';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { NotiemailModule } from './notiemail/notiemail.module';
-
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '73990',
-      database: 'SchduleUser',
-      entities: [User, Calendar, Schedule],
-      synchronize: true,
+    ConfigModule.forRoot({
+      envFilePath: [`.env`],
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        return {
+          type: 'postgres',
+          autoLoadEntities: true,
+          synchronize: true,
+          host: configService.get('DB_HOST'),
+          port: configService.get('DB_PORT'),
+          username: configService.get('DB_USERNAME'),
+          password: configService.get('DB_PASSWORD'),
+          database: configService.get('DB_DATABASE'),
+        };
+      },
+    }),
+    ConfigModule,
     UserModule,
     CalendarModule,
     NotiLineModule,

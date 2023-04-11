@@ -6,7 +6,6 @@ import { Schedule } from './entities/schedule.entity';
 import { UserService } from 'src/user/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CalendarService } from 'src/calendar/calendar.service';
-import e, { query } from 'express';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import * as dayjs from 'dayjs';
 import { User } from 'src/user/entities/user.entity';
@@ -41,8 +40,8 @@ export class ScheduleService {
 
       const wk = await this.scheduleRepo
         .createQueryBuilder('schedule')
-        .leftJoinAndSelect('schedule.user', 'scheduleUser')
-        .leftJoinAndSelect('schedule.calendar', 'scheduleCalendar')
+        .leftJoinAndSelect('schedule.user', 'scheduleUser') //line user
+        .leftJoinAndSelect('schedule.calendar', 'scheduleCalendar') //line calendar
         .where('scheduleCalendar.date BETWEEN :start and :end ', {
           start: startDate,
           end: endDate,
@@ -53,7 +52,6 @@ export class ScheduleService {
         for (const c of calendar) {
           if (!wk) {
             for (let i = 0; i < 2; i++) {
-              // console.log(userArr);
               const randomIndex = Math.floor(Math.random() * user.length);
               const randomuser = user.splice(randomIndex, 1)[0]; //0 for use index splice
               // const randomuser = user[Math.floor(Math.random() * user.length)];
