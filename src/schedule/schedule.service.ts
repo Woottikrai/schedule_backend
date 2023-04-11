@@ -51,7 +51,7 @@ export class ScheduleService {
       if (calendar?.length > 0) {
         for (const c of calendar) {
           if (!wk) {
-            for (let i = 0; i <= 2; i++) {
+            for (let i = 0; i < 2; i++) {
               const randomIndex = Math.floor(Math.random() * user.length);
               const randomuser = user.splice(randomIndex, 1)[0]; //0 for use index splice
               // const randomuser = user[Math.floor(Math.random() * user.length)];
