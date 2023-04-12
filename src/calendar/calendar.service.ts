@@ -1,12 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCalendarDto } from './dto/create-calendar.dto';
 import { UpdateCalendarDto } from './dto/update-calendar.dto';
-import { Repository } from 'typeorm';
+import {
+  QueryBuilder,
+  QueryRunner,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { Calendar } from './entities/calendar.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 import { UserService } from 'src/user/user.service';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import { query } from 'express';
 @Injectable()
 export class CalendarService {
   constructor(
@@ -20,7 +26,9 @@ export class CalendarService {
       let isSameOrBefore = require('dayjs/plugin/isSameOrBefore');
       dayjs.extend(isSameOrBefore);
       const startDate = dayjs().startOf('week').add(1, 'day'); // Monday of current week
-      const endDate = dayjs().startOf('week').add(5, 'day'); // Friday of current week
+      const endDate = dayjs().startOf('week').add(5, 'day'); // Friday of current week '2023-04-17'
+      // const startDate = dayjs('2023-04-17').startOf('week').add(1, 'day'); // Monday of current week
+      // const endDate = dayjs('2023-04-17').startOf('week').add(5, 'day'); // Friday of current week
       const daysOfWeek = [];
 
       for (
@@ -34,7 +42,7 @@ export class CalendarService {
       }
 
       for (let d of daysOfWeek) {
-        const createdate = await this.calendarRepository.save({
+        await this.calendarRepository.save({
           ...this.calendarRepository,
           date: dayjs(d.date).format('YYYY-MM-DD'),
         });
@@ -44,22 +52,12 @@ export class CalendarService {
     }
   }
 
-  async create(bodyCalendar: CreateCalendarDto) {
-    // try {
-    //   const { date } = bodyCalendar;
-    //   const createcalendar = await this.calendarRepository.save({
-    //     date: dayjs(date).toDate(),
-    //   });
-    //   return createcalendar;
-    // } catch (error) {
-    //   throw error;
-    // }
-  }
+  async create(bodyCalendar: CreateCalendarDto) {}
 
   async findAll() {
     try {
       const findAll = await this.calendarRepository.find({
-        relations: ['schedule', 'schedule.calendar'],
+        relations: ['schedule', 'schedule.user'],
       });
       return findAll;
     } catch (error) {
@@ -91,5 +89,12 @@ export class CalendarService {
       await this.calendarRepository.delete(id);
       return remove;
     } catch (error) {}
+  }
+
+  createQueryBuilder(
+    alias: string,
+    queryRunner?: QueryRunner,
+  ): SelectQueryBuilder<Calendar> {
+    return this.calendarRepository.createQueryBuilder(alias, queryRunner);
   }
 }
