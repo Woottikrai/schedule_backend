@@ -28,7 +28,7 @@ export class NotiemailController {
     return;
   }
 
-  @Post('setTime')
+  @Get('setTime')
   async setTime() {
     await this.notiemailService.setTime();
     return;

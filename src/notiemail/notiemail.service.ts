@@ -11,10 +11,18 @@ import { Repository } from 'typeorm';
 import { CalendarService } from 'src/calendar/calendar.service';
 import { ScheduleController } from 'src/schedule/schedule.controller';
 import { log } from 'console';
+import dayjs from 'dayjs';
+import { Notiemail } from './entities/notiemail.entity';
 
 @Injectable()
 export class NotiemailService {
-  constructor(private scheduleService: ScheduleService) {}
+  constructor(
+    private scheduleService: ScheduleService,
+    @InjectRepository(Schedule)
+    private readonly scheduleRepository: Repository<Schedule>,
+    @InjectRepository(Schedule)
+    private readonly notiemail: Repository<Notiemail>,
+  ) {}
 
   private transport = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -38,6 +46,12 @@ export class NotiemailService {
         });
         console.log(user);
       }
+      const now = new Date();
+      const startDate = dayjs(now).startOf('day').toDate(); //เช็คเที่ยงคืนของเมื่อวาน
+      const endDate = dayjs(now).endOf('day').toDate();
+
+      const schedule = await this.scheduleRepository;
+
       return true;
     } catch (error) {
       throw error;
@@ -46,6 +60,8 @@ export class NotiemailService {
 
   async setTime() {
     try {
+      const time = await this.notiemail.find({});
+      return time;
     } catch (error) {
       throw error;
     }
@@ -75,9 +91,9 @@ export class NotiemailService {
   //   return `This action returns a #${id} notiemail`;
   // }
 
-  // update(id: number, updateNotiemailDto: UpdateNotiemailDto) {
-  //   return `This action updates a #${id} notiemail`;
-  // }
+  update(id: number, updateNotiemailDto: UpdateNotiemailDto) {
+    return `This action updates a #${id} notiemail`;
+  }
 
   // remove(id: number) {
   //   return `This action removes a #${id} notiemail`;
