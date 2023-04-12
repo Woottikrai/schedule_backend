@@ -9,6 +9,7 @@ import { CalendarService } from 'src/calendar/calendar.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import * as dayjs from 'dayjs';
 import { User } from 'src/user/entities/user.entity';
+import { Calendar } from 'src/calendar/entities/calendar.entity';
 
 @Injectable()
 export class ScheduleService {
@@ -23,11 +24,6 @@ export class ScheduleService {
   // @Cron(CronExpression.EVERY_10_SECONDS)
   async randomuser() {
     try {
-      const user = await this.userService.findUserAll();
-      const createdate = await this.calendarSerice.createdate();
-      const calendar = await this.calendarSerice.findAll();
-
-      const u = Math.ceil(user.length / 5);
       const startDate = dayjs()
         .startOf('week')
         .add(1, 'day')
@@ -37,6 +33,19 @@ export class ScheduleService {
         .add(5, 'day')
         .format('YYYY-MM-DD'); // Friday of current week
       console.log(startDate);
+
+      const user = await this.userService.findUserAll();
+      await this.calendarSerice.createdate();
+      // const u = Math.ceil(user.length / 5);
+      const u = user.length / 5;
+
+      const thiswk = await this.calendarSerice
+        .createQueryBuilder('calendar')
+        .where('calendar.date BETWEEN :start and :end ', {
+          start: startDate,
+          end: endDate,
+        })
+        .getMany();
 
       const wk = await this.scheduleRepo
         .createQueryBuilder('schedule')
@@ -48,40 +57,18 @@ export class ScheduleService {
         })
         .getOne();
 
-      if (calendar?.length > 0) {
-        for (const c of calendar) {
+      if (thiswk?.length > 0) {
+        for (const c of thiswk) {
           if (!wk) {
-            for (let i = 0; i < 2; i++) {
+            for (let i = 0; i < u; i++) {
+              console.log(user);
               const randomIndex = Math.floor(Math.random() * user.length);
               const randomuser = user.splice(randomIndex, 1)[0]; //0 for use index splice
-              // const randomuser = user[Math.floor(Math.random() * user.length)];
-              // const qb = await this.scheduleRepo
-              //   .createQueryBuilder('schedule')
-              //   .leftJoinAndSelect('schedule.user', 'scheduleUser') // line user (entity)
-              //   .leftJoinAndSelect('schedule.calendar', 'scheduleCalendar') // line calendar
-              //   .where('scheduleUser.id = :id', { id: randomuser?.id }) //where id user random
-              //   .andWhere('scheduleCalendar.id = :id', { id: c?.id }) //id date
-              //   .getOne();
-              // const wk = await this.scheduleRepo
-              //   .createQueryBuilder('schedule')
-              //   .leftJoinAndSelect('schedule.user', 'scheduleUser')
-              //   .leftJoinAndSelect('schedule.calendar', 'scheduleCalendar')
-              //   .where('scheduleUser.id = :id', { id: randomuser?.id })
-              //   .andWhere('scheduleCalendar.date BETWEEN :start and :end ', {
-              //     start: startDate,
-              //     end: endDate,
-              //   })
-              //   .getOne();
+
               await this.scheduleRepo.save({
                 calendar: c,
                 user: randomuser,
               });
-              // if (!wk) {
-              //   await this.scheduleRepo.save({
-              //     calendar: c,
-              //     user: randomuser,
-              //   });
-              // }
             }
           }
         }
