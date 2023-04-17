@@ -28,7 +28,7 @@ export class NotiemailService {
     host: 'smtp.gmail.com',
     port: '587',
     secure: false,
-    auth: { user: 'phakphumninart@gmail.com', pass: 'yoxwmueyqtkleoiw' },
+    // auth: { user: 'phakphumninart@gmail.com', pass: 'yoxwmueyqtkleoiw' },
   });
 
   // @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_10AM)
@@ -37,25 +37,31 @@ export class NotiemailService {
     try {
       // const findUser = await this.userService.findUserAll();
       const findSchedule = await this.scheduleService.findAll();
-      for (const user of findSchedule) {
+      const now = new Date();
+      const firstDate = dayjs(now).startOf('day').toDate(); //เช็คเที่ยงคืนของเมื่อวาน
+      const endDate = dayjs(now).endOf('day').toDate(); //จนถึง 23.59 วันนี้
+      //crate query
+
+      for (const userschedule of findSchedule) {
         await this.transport.sendMail({
-          to: `${user.user.email}`, //Email User
+          if(condition) {},
+          to: `${userschedule.user.email}`, //Email User
           from: 'phakphumninart@gmail.com',
           subject: 'ทำเวร',
           text: 'ทำเวรด้วยจ้า',
         });
-        console.log(user);
+        console.log(userschedule.user.email);
       }
-      const now = new Date();
-      const startDate = dayjs(now).startOf('day').toDate(); //เช็คเที่ยงคืนของเมื่อวาน
-      const endDate = dayjs(now).endOf('day').toDate();
-
-      const schedule = await this.scheduleRepository;
 
       return true;
     } catch (error) {
       throw error;
     }
+  }
+
+  async chack(params: string) {
+    try {
+    } catch (error) {}
   }
 
   async setTime() {
